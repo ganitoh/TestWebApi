@@ -1,0 +1,38 @@
+*.vsix
+# Binaries
+bin/
+obj/
+
+# Исключение всех бинарных файлов
+*.bin
+*.dll
+*.exe
+*.jar
+
+# Visual Studio files
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+
+# NuGet
+*.nuget.targets
+*.nuget.props
+.vs/**/*.futdcache.v2
+
+# Cache and temporary files
+*.cache
+*.log
+*.vsix
+*.vsidx
+
+# сборка
+*.dll
+*.pdb
+sourcelink.json
+**/AssemblyInfo.cs
+DocumentLayout.json
+
+# Исключение файлов исполняемых программ (exe)
+*.exe
