@@ -2,29 +2,34 @@
 using TestWebApi.Persistance.Services.Repository.Abstraction;
 using TestWebApi.Domain.Models;
 using TestWebApi.Domain.Exceptions;
+using MediatR;
+using TestWebApi.Application.CQRS.Users.Commands.UserCreate;
+using TestWebApi.Application.CQRS.Users.Queries.GetUserByEmail;
 
 namespace TestWebApi.Application.Services.Implementation
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
         private readonly IHashPassword _hashPassword;
+        private readonly IMediator _mediator;
 
-        public UserService(IUserRepository userRepository, IHashPassword hashPassword)
+        public UserService(
+            IHashPassword hashPassword, 
+            IMediator mediator)
         {
-            _userRepository = userRepository;
             _hashPassword = hashPassword;
+            _mediator = mediator;
         }
 
         public async Task Register(User user, string password)
         {
             user.HashPassword = _hashPassword.HashPassword(password);
-            await _userRepository.CreateAsync(user);
+            int userId = await _mediator.Send(new UserCreateCommand(user.Login,user.HashPassword));
         }
 
         public async Task<User> Login(string login, string password)
         {
-            var user = await _userRepository.GetByLogin(login);
+            var user = await _mediator.Send(new GetUserByLoginQuerie(login));
 
             if (_hashPassword.VerifyPassword(password, user.HashPassword))
                 return user;

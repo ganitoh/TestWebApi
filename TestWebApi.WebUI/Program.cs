@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region services
 builder.Services.AddApplicationService();
+builder.Services.AddCQRS();
 builder.Services.AddMSSQL(builder.Configuration["ConnectionString:MSSQL"]!);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(configuration =>
@@ -17,14 +18,11 @@ builder.Services.AddSwaggerGen(configuration =>
     var filePath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     configuration.IncludeXmlComments(filePath);
 });
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie();
-
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 builder.Services.AddAuthorization();
 #endregion
+
 var app = builder.Build();
-
-
 
 #region middleware
 if (app.Environment.IsDevelopment())

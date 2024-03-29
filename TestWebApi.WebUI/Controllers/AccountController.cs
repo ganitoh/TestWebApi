@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TestWebApi.Application.Services.Abstarction;
 using TestWebApi.Domain.Models;
-using TestWebApi.Persistance.Services.Repository.Abstraction;
 using TestWebApi.WebUI.Contracts;
 
 namespace TestWebApi.WebUI.Controllers
@@ -14,12 +13,10 @@ namespace TestWebApi.WebUI.Controllers
     public class AccountController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IUserRepository _userRepository;
 
-        public AccountController(IUserService userService, IUserRepository userRepository)
+        public AccountController(IUserService userService)
         {
             _userService = userService;
-            _userRepository = userRepository;
         }
 
         [HttpPost("register")]

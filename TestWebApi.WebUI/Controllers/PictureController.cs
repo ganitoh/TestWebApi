@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Writers;
 using System.Security.Claims;
+using TestWebApi.Application.CQRS.Pictures.Queries.GetAllPicturesByUser;
 using TestWebApi.Application.Services.Abstarction;
 using TestWebApi.Domain.Models;
 using TestWebApi.Persistance.Services.Repository.Abstraction;
@@ -17,15 +16,15 @@ namespace TestWebApi.WebUI.Controllers
     public class PictureController : Controller
     {
 
-        private readonly IPictureRepository _pictureRepository;
         private readonly IPictureService _pictureService;
+        private readonly IMediator _mediator;
 
         public PictureController(
-            IPictureRepository pictureRepository,
-            IPictureService pictureService)
+            IPictureService pictureService,
+            IMediator mediator)
         {
-            _pictureRepository = pictureRepository;
             _pictureService = pictureService;
+            _mediator = mediator;
         }
 
         [HttpPost("add")]
@@ -40,15 +39,16 @@ namespace TestWebApi.WebUI.Controllers
 
             var picture = new Picture() { RelativePath = relativePath , Description = requsest.description};
 
-            var userId = Convert.ToInt32(User.FindFirstValue("id"));
-            await _pictureService.AddPictrue(picture, userId);
+            picture.UserID = Convert.ToInt32(User.FindFirstValue("id"));
+            await _pictureService.AddPictrue(picture);
             return Ok();
         }
 
         [HttpGet("get-my-all")]
         public async Task<IActionResult> GetMyAllPictures()
         {
-            var pictures = await _pictureRepository.GetAllAsync();
+            var userId = Convert.ToInt32(User.FindFirstValue("id"));
+            var pictures = await _mediator.Send(new GetAllPicturesByUserQuerie(userId));
             return Ok(pictures);
         }
 

@@ -1,10 +1,11 @@
-﻿using Azure.Core;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Security.Claims;
+using TestWebApi.Application.CQRS.FriendShips.Commands.CreateFirenedShip;
+using TestWebApi.Application.CQRS.FriendShips.Commands.UpdateFriendShip;
+using TestWebApi.Application.CQRS.FriendShips.Queries.GetRequestFriendShip;
 using TestWebApi.Domain.Models;
-using TestWebApi.Persistance.Services.Repository.Abstraction;
 
 namespace TestWebApi.WebUI.Controllers
 {
@@ -13,32 +14,18 @@ namespace TestWebApi.WebUI.Controllers
     [Route("user")]
     public class UserController : Controller
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IFriendShipRepository _friendShipRepository;
+        private readonly IMediator _mediator;
 
-        public UserController(
-            IUserRepository userRepository,
-            IFriendShipRepository friendShipRepository)
+        public UserController(IMediator mediator)
         {
-            _userRepository = userRepository;
-            _friendShipRepository = friendShipRepository;
+            _mediator = mediator;
         }
 
         [HttpGet("send-request-friend")]
         public async Task<IActionResult> SendRequestFriend([FromQuery]int userToId)
         {
             var userFromId = Convert.ToInt32(User.FindFirstValue("id")!);
-            var userFrom = await _userRepository.GetAsync(userFromId);
-            var userTo = await _userRepository.GetAsync(userToId);
-
-            var friendShip = new FriendShip()
-            {
-                UserFrom = userFrom,
-                UserTo = userTo,
-                Status = FriendShipStastus.WaitResponse
-            };
-
-            await _friendShipRepository.CreateAsync(friendShip);
+            await _mediator.Send(new CreateFriendShipCommand(userFromId, userToId));
             return Ok();
         }
 
@@ -46,21 +33,21 @@ namespace TestWebApi.WebUI.Controllers
         public async Task<IActionResult> GetRequestFriends()
         {
             var userId = Convert.ToInt32(User.FindFirstValue("id"));
-            var friendShipRequest = await _friendShipRepository.GetAllRequestInFriendsAsync(userId);
-            return Ok(friendShipRequest.ToList());
+            var friendShipRequest = await _mediator.Send(new GetRequestToFrieendShipCommand(userId));
+            return Ok(friendShipRequest);
         }
 
         [HttpGet("accept-request-friend")]
         public async Task<IActionResult> AcceptRequestFriend([FromQuery] int friendShipId)
         {
-            await _friendShipRepository.UpdateSatatusAsync(friendShipId, FriendShipStastus.InFrined);
+            await _mediator.Send(new UpdateStatusFriendShipCommand(friendShipId,FriendShipStastus.InFrined));
             return Ok();
         }
 
         [HttpGet("reject-request-friend")]
         public async Task<IActionResult> RejectRequestFriend([FromQuery] int friendShipId)
         {
-            await _friendShipRepository.UpdateSatatusAsync(friendShipId, FriendShipStastus.Rejected);
+            await _mediator.Send(new UpdateStatusFriendShipCommand(friendShipId, FriendShipStastus.Rejected));
             return Ok();
         }
     }
