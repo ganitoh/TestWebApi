@@ -1,15 +1,18 @@
 ﻿using MediatR;
-using TestWebApi.Domain.Models;
 
 namespace TestWebApi.Application.CQRS.Pictures.Commands.PictureCreate
 {
     public class PictureCreateCommand : IRequest
     {
-        public Picture Picture { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string RelativePath { get; set; } = string.Empty;
+        public int UserID { get; set; }
 
-        public PictureCreateCommand(Picture picture)
+        public PictureCreateCommand(string description, string relativePath, int userID)
         {
-            Picture = picture;
+            Description = description;
+            RelativePath = relativePath;
+            UserID = userID;
         }
     }
 }

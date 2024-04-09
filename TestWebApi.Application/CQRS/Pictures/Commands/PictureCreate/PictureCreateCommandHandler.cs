@@ -19,7 +19,11 @@ namespace TestWebApi.Application.CQRS.Pictures.Commands.PictureCreate
             CancellationToken cancellationToken)
         {
 
-            await _pictureRepository.CreateAsync(request.Picture);
+            await _pictureRepository.CreateAsync(
+                new Picture()
+                { Description = request.Description,
+                    RelativePath = request.RelativePath,
+                    UserID = request.UserID});
         }
     }
 }

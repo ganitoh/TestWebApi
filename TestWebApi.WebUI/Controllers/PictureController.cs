@@ -7,6 +7,7 @@ using TestWebApi.Application.Services.Abstarction;
 using TestWebApi.Domain.Models;
 using TestWebApi.Persistance.Services.Repository.Abstraction;
 using TestWebApi.WebUI.Contracts;
+using TestWebApi.Application.CQRS.Pictures.Commands.PictureCreate;
 
 namespace TestWebApi.WebUI.Controllers
 {
@@ -37,10 +38,8 @@ namespace TestWebApi.WebUI.Controllers
             using FileStream stream = new FileStream(fullPath, FileMode.Create);
             await requsest.file.CopyToAsync(stream);
 
-            var picture = new Picture() { RelativePath = relativePath , Description = requsest.description};
-
-            picture.UserID = Convert.ToInt32(User.FindFirstValue("id"));
-            await _pictureService.AddPictrue(picture);
+            await _pictureService.AddPictrue(
+                new PictureCreateCommand(requsest.description,relativePath, Convert.ToInt32(User.FindFirstValue("id"))));
             return Ok();
         }
 

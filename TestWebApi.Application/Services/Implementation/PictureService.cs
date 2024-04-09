@@ -15,9 +15,9 @@ namespace TestWebApi.Application.Services.Implementation
             _mediator = mediator;
         }
 
-        public async Task AddPictrue(Picture picture)
+        public async Task AddPictrue(PictureCreateCommand command)
         {
-            await _mediator.Send(new PictureCreateCommand(picture));
+            await _mediator.Send(command);
         }
 
         public async Task<IEnumerable<Picture>> GetPictureFriendAsync(int myId, int friendId)
